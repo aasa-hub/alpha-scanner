@@ -27,11 +27,31 @@ def alert_level(score_total: float, strategy_type: str) -> str:
     return "watch"
 
 
+def format_strategy_label(strategy_type: str) -> str:
+    return strategy_type.replace("_", " ").upper()
+
+
 def build_alert_summary(alert_row: Dict[str, object]) -> str:
-    return (
-        f"[{alert_row['strategy_type']}] {alert_row['symbol']} on {alert_row['chain']} scored "
-        f"{float(alert_row['score_total']):.1f} ({alert_row['alert_level']}, risk={alert_row['risk_level']})"
-    )
+    parts = [
+        f"⚡ {format_strategy_label(str(alert_row['strategy_type']))}",
+        f"Token: {alert_row['symbol']} ({alert_row['chain']})",
+        f"Score: {float(alert_row['score_total']):.1f}",
+        f"Level: {alert_row['alert_level']}",
+        f"Risk: {alert_row['risk_level']}",
+    ]
+
+    if alert_row.get("liquidity_usd") is not None:
+        parts.append(f"Liquidity: ${float(alert_row['liquidity_usd']):,.0f}")
+    if alert_row.get("volume_1h") is not None:
+        parts.append(f"1h Volume: ${float(alert_row['volume_1h']):,.0f}")
+    if alert_row.get("pair_age_minutes") is not None:
+        parts.append(f"Pair Age: {int(alert_row['pair_age_minutes'])}m")
+    if alert_row.get("top_10_pct") is not None:
+        parts.append(f"Top10: {float(alert_row['top_10_pct']):.1f}%")
+    if alert_row.get("tracked_wallet_buys_count") is not None:
+        parts.append(f"Tracked Wallet Buys: {int(alert_row['tracked_wallet_buys_count'])}")
+
+    return "\n".join(parts)
 
 
 def latest_alert_score(token_address: str, chain: str, strategy_type: str) -> Optional[float]:
@@ -65,6 +85,39 @@ def load_alert_candidates() -> List[Dict[str, object]]:
              AND s.chain = latest.chain
              AND s.strategy_type = latest.strategy_type
              AND s.computed_at = latest.latest_computed_at
+        ), latest_pairs AS (
+            SELECT p.*
+            FROM pairs p
+            JOIN (
+                SELECT chain, token_address, MAX(snapshot_at) AS latest_snapshot_at
+                FROM pairs
+                GROUP BY chain, token_address
+            ) latest_pair
+              ON p.chain = latest_pair.chain
+             AND p.token_address = latest_pair.token_address
+             AND p.snapshot_at = latest_pair.latest_snapshot_at
+        ), latest_holders AS (
+            SELECT h1.*
+            FROM holder_snapshots h1
+            JOIN (
+                SELECT chain, token_address, MAX(snapshot_at) AS latest_snapshot_at
+                FROM holder_snapshots
+                GROUP BY chain, token_address
+            ) h2
+              ON h1.chain = h2.chain
+             AND h1.token_address = h2.token_address
+             AND h1.snapshot_at = h2.latest_snapshot_at
+        ), latest_wallets AS (
+            SELECT w1.*
+            FROM wallet_signals w1
+            JOIN (
+                SELECT chain, token_address, MAX(snapshot_at) AS latest_snapshot_at
+                FROM wallet_signals
+                GROUP BY chain, token_address
+            ) w2
+              ON w1.chain = w2.chain
+             AND w1.token_address = w2.token_address
+             AND w1.snapshot_at = w2.latest_snapshot_at
         )
         SELECT
             ls.token_address,
@@ -73,11 +126,25 @@ def load_alert_candidates() -> List[Dict[str, object]]:
             ls.score_total,
             ls.risk_level,
             t.symbol,
-            t.name
+            t.name,
+            lp.liquidity_usd,
+            lp.volume_1h,
+            COALESCE(CAST((julianday('now') - julianday(lp.pair_created_at)) * 1440 AS INTEGER), 0) AS pair_age_minutes,
+            COALESCE(lh.top_10_pct, 0) AS top_10_pct,
+            COALESCE(lw.tracked_wallet_buys_count, 0) AS tracked_wallet_buys_count
         FROM latest_scores ls
         JOIN tokens t
           ON t.chain = ls.chain
          AND t.token_address = ls.token_address
+        LEFT JOIN latest_pairs lp
+          ON lp.chain = ls.chain
+         AND lp.token_address = ls.token_address
+        LEFT JOIN latest_holders lh
+          ON lh.chain = ls.chain
+         AND lh.token_address = ls.token_address
+        LEFT JOIN latest_wallets lw
+          ON lw.chain = ls.chain
+         AND lw.token_address = ls.token_address
         ORDER BY ls.score_total DESC
         """
     ).fetchall()
