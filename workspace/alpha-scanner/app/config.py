@@ -1,5 +1,10 @@
 import os
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover - optional during barebones bootstrap
+    def load_dotenv() -> None:
+        return None
 
 load_dotenv()
 

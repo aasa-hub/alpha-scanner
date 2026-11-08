@@ -3,8 +3,8 @@
 Semi-automated Solana + Base alpha scanner for early meme and utility coin discovery.
 
 ## MVP features
-- Pair discovery scaffolding for Solana and Base
-- SQLite database initialization
+- Real DexScreener pair discovery for Solana and Base
+- SQLite token + pair snapshot persistence
 - Strategy-specific scoring functions
 - Simple test coverage for scoring thresholds
 
@@ -20,3 +20,11 @@ PYTHONPATH=. pytest
 
 ## Environment
 Copy `.env.example` to `.env` and fill in keys as needed.
+
+## Current ingestion behavior
+`python scripts/run_once.py` will:
+- query DexScreener for Solana and Base pairs
+- normalize pair data
+- upsert tokens into SQLite
+- insert pair snapshots into SQLite
+- print a short storage summary
