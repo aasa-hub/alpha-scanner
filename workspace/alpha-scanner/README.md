@@ -6,6 +6,7 @@ Semi-automated Solana + Base alpha scanner for early meme and utility coin disco
 - Real DexScreener pair discovery for Solana and Base
 - SQLite token + pair snapshot persistence
 - Strategy-specific scoring functions
+- Threshold-based alert generation with alert dedupe
 - Simple test coverage for scoring thresholds
 
 ## Quick start
@@ -27,4 +28,6 @@ Copy `.env.example` to `.env` and fill in keys as needed.
 - normalize pair data
 - upsert tokens into SQLite
 - insert pair snapshots into SQLite
+- compute and store strategy scores
+- generate deduped threshold-based alerts
 - print a short storage summary
