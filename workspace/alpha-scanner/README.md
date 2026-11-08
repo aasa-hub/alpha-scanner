@@ -23,6 +23,17 @@ python scripts/run_once.py
 PYTHONPATH=. pytest
 ```
 
+## Scheduler automation
+Run the continuous loop with:
+```bash
+python scripts/run_scheduler.py
+```
+
+Optional interval override:
+```env
+SCHEDULER_INTERVAL_SECONDS=300
+```
+
 ## Environment
 Copy `.env.example` to `.env` and fill in keys as needed.
 
@@ -49,5 +60,5 @@ TRACKED_WALLETS=wallet1,wallet2,wallet3
 - enrich Base contract/risk snapshots plus Solana authority-risk snapshots
 - compute and store strategy scores
 - generate deduped threshold-based alerts
-- send alerts to Telegram when configured
+- send rich alerts to Telegram when configured
 - print a short storage summary
