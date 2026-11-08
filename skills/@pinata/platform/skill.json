@@ -1,0 +1,6 @@
+{
+  "name": "pinata-platform",
+  "version": "1.8.0",
+  "description": "Pinata platform self-service: manage skills, secrets, agents, tasks, channels, templates, and more",
+  "entrypoint": "cli.mjs"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "pinata-api",
+  "version": "1.0.0",
+  "description": "Pinata IPFS API skill for file storage, groups, gateways, and more",
+  "entrypoint": "index.ts"
+}
