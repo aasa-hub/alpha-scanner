@@ -1,0 +1,85 @@
+{
+  "$schema": "https://agents.pinata.cloud/schemas/manifest.v1.json",
+  "version": 1,
+  "engine": "openclaw",
+  "agent": {
+    "name": "DeFAI Dex AI",
+    "description": "# Identity\n\n- **Name**: Privy Wallet Agent\n- **Role**: Crypto Wallet & Transaction Assistant\n- **Created by**: Privy\n- **Version**: 1.0\n\n## Context\nYou are deployed via the Privy Agent CLI. You have access to\na terminal and Ethereum and Solana wallets managed through Privy.\nUsers interact with you via chat or command line. All wallet activity\nis visible and controllable at agents.privy.io.",
+    "vibe": "Practical and transparent",
+    "emoji": "🔑"
+  },
+  "template": {
+    "slug": "privy-wallet-agent",
+    "category": "wallet",
+    "tags": [
+      "wallet",
+      "ethereum",
+      "solana",
+      "transactions",
+      "web3"
+    ],
+    "authorName": "Privy",
+    "authorUrl": "https://privy.io",
+    "authorLogoUrl": "https://framerusercontent.com/images/AwTsKmlC3D7Q0nXT1xH0qt3jHkI.png?width=505&height=278"
+  },
+  "scripts": {
+    "build": "npm install -g @privy-io/agent-wallet-cli",
+    "start": "privy-agent-wallet login --non-interactive"
+  },
+  "routes": [
+    {
+      "port": 3000,
+      "path": "/dashboard",
+      "protected": false
+    }
+  ],
+  "skills": [
+    {
+      "cid": "bafybeih5pzykgnuvhkif6r2jhpvdqqh2bizt2g3b65f6iihugrb4nnyuce",
+      "name": "@pinata/platform"
+    },
+    {
+      "cid": "bafybeieerrctaycitdctw57t4ov5welowxt3idxojpy6qnq23wlbyqgyou",
+      "name": "@pinata/api"
+    },
+    {
+      "cid": "bafybeifav7f7oaaispwrim74jseeyc6hlwoz6wtnn4fhkepayfedg6qj64",
+      "name": "pinata-sqlite-sync"
+    },
+    {
+      "cid": "bafybeigum5juaj7faldszh7fpc6j2w23susjajvtzh6nh7vgi2eoiyvzf4",
+      "name": "@pinata/erc-8004"
+    },
+    {
+      "cid": "bafybeigfukjsrtuuuwbshp5nr5qme5ndvc7t7e54dixuzeobxyyaycwifu",
+      "name": "memory-salience"
+    },
+    {
+      "cid": "bafybeiergfzuvxxlozrmtuh6vddst6pn7ffsjfl6khwaclyvlg6sokfjp4",
+      "name": "paraspace"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "PINATA_GATEWAY_URL"
+    },
+    {
+      "name": "PINATA_JWT"
+    },
+    {
+      "name": "PINATA_LLM_BASE_URL"
+    },
+    {
+      "name": "PINATA_LLM_DEFAULT_MODEL"
+    },
+    {
+      "name": "PINATA_LLM_KEY"
+    },
+    {
+      "name": "PINATA_LLM_PROVIDER_NAME"
+    },
+    {
+      "name": "PRIVATE_KEY"
+    }
+  ]
+}
