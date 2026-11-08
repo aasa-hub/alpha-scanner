@@ -48,7 +48,11 @@ def load_latest_candidates() -> List[TokenCandidate]:
             COALESCE(rp.mint_authority, 0) AS mint_authority,
             COALESCE(rp.freeze_authority, 0) AS freeze_authority,
             COALESCE(rp.proxy_contract, 0) AS proxy_contract,
-            COALESCE(ws.tracked_wallet_buys_count, 0) AS tracked_wallet_buys_count
+            COALESCE(ws.tracked_wallet_buys_count, 0) AS tracked_wallet_buys_count,
+            COALESCE(ss.twitter_mentions_1h, 0) AS twitter_mentions_1h,
+            COALESCE(ss.telegram_exists, 0) AS social_telegram_exists,
+            COALESCE(ss.website_exists, 0) AS social_website_exists,
+            COALESCE(ss.github_exists, 0) AS social_github_exists
         FROM latest_pairs lp
         JOIN tokens t
           ON t.chain = lp.chain
@@ -95,6 +99,20 @@ def load_latest_candidates() -> List[TokenCandidate]:
         ) ws
           ON ws.chain = lp.chain
          AND ws.token_address = lp.token_address
+        LEFT JOIN (
+            SELECT s1.*
+            FROM social_snapshots s1
+            JOIN (
+                SELECT chain, token_address, MAX(snapshot_at) AS latest_snapshot_at
+                FROM social_snapshots
+                GROUP BY chain, token_address
+            ) s2
+              ON s1.chain = s2.chain
+             AND s1.token_address = s2.token_address
+             AND s1.snapshot_at = s2.latest_snapshot_at
+        ) ss
+          ON ss.chain = lp.chain
+         AND ss.token_address = lp.token_address
         """
     ).fetchall()
 
@@ -113,10 +131,10 @@ def load_latest_candidates() -> List[TokenCandidate]:
                 fdv=row["fdv"] or 0,
                 market_cap=row["market_cap"] or 0,
                 pair_age_minutes=row["pair_age_minutes"] or 0,
-                twitter_mentions_1h=0,
-                telegram_exists=bool(row["telegram_url"]),
-                website_exists=bool(row["website_url"]),
-                github_exists=bool(row["github_url"]),
+                twitter_mentions_1h=row["twitter_mentions_1h"] or 0,
+                telegram_exists=bool(row["social_telegram_exists"] or row["telegram_url"]),
+                website_exists=bool(row["social_website_exists"] or row["website_url"]),
+                github_exists=bool(row["social_github_exists"] or row["github_url"]),
                 verified_contract=bool(row["verified_contract"]),
                 mint_authority=bool(row["mint_authority"]),
                 freeze_authority=bool(row["freeze_authority"]),

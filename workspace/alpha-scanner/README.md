@@ -6,6 +6,7 @@ Semi-automated Solana + Base alpha scanner for early meme and utility coin disco
 - Real DexScreener pair discovery for Solana and Base
 - SQLite token + pair snapshot persistence
 - Base-first holder enrichment with Solana fallback scaffolding
+- Social enrichment snapshots feeding scores
 - Wallet tracking snapshots feeding scores
 - Base contract/risk enrichment with Solana authority-risk fallback
 - Strategy-specific scoring functions
@@ -43,6 +44,7 @@ TRACKED_WALLETS=wallet1,wallet2,wallet3
 - upsert tokens into SQLite
 - insert pair snapshots into SQLite
 - enrich holder snapshots (Base first, Solana fallback)
+- enrich social snapshots
 - enrich tracked wallet snapshots
 - enrich Base contract/risk snapshots plus Solana authority-risk snapshots
 - compute and store strategy scores
