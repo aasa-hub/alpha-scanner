@@ -43,7 +43,11 @@ def load_latest_candidates() -> List[TokenCandidate]:
             COALESCE(github_url, '') AS github_url,
             COALESCE(hs.holder_count, 0) AS holder_count,
             COALESCE(hs.top_10_pct, 0) AS top_10_pct,
-            COALESCE(hs.creator_pct, 0) AS creator_pct
+            COALESCE(hs.creator_pct, 0) AS creator_pct,
+            COALESCE(rp.verified_contract, CASE WHEN lp.chain = 'solana' THEN 1 ELSE 0 END) AS verified_contract,
+            COALESCE(rp.mint_authority, 0) AS mint_authority,
+            COALESCE(rp.freeze_authority, 0) AS freeze_authority,
+            COALESCE(rp.proxy_contract, 0) AS proxy_contract
         FROM latest_pairs lp
         JOIN tokens t
           ON t.chain = lp.chain
@@ -62,6 +66,20 @@ def load_latest_candidates() -> List[TokenCandidate]:
         ) hs
           ON hs.chain = lp.chain
          AND hs.token_address = lp.token_address
+        LEFT JOIN (
+            SELECT r1.*
+            FROM risk_profiles r1
+            JOIN (
+                SELECT chain, token_address, MAX(snapshot_at) AS latest_snapshot_at
+                FROM risk_profiles
+                GROUP BY chain, token_address
+            ) r2
+              ON r1.chain = r2.chain
+             AND r1.token_address = r2.token_address
+             AND r1.snapshot_at = r2.latest_snapshot_at
+        ) rp
+          ON rp.chain = lp.chain
+         AND rp.token_address = lp.token_address
         """
     ).fetchall()
 
@@ -84,10 +102,10 @@ def load_latest_candidates() -> List[TokenCandidate]:
                 telegram_exists=bool(row["telegram_url"]),
                 website_exists=bool(row["website_url"]),
                 github_exists=bool(row["github_url"]),
-                verified_contract=(row["chain"] == "solana"),
-                mint_authority=False,
-                freeze_authority=False,
-                proxy_contract=False,
+                verified_contract=bool(row["verified_contract"]),
+                mint_authority=bool(row["mint_authority"]),
+                freeze_authority=bool(row["freeze_authority"]),
+                proxy_contract=bool(row["proxy_contract"]),
                 holder_count=row["holder_count"] or 0,
                 top_10_pct=row["top_10_pct"] or 0,
                 creator_pct=row["creator_pct"] or 0,
