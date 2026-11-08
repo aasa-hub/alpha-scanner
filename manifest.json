@@ -22,17 +22,6 @@
     "authorUrl": "https://privy.io",
     "authorLogoUrl": "https://framerusercontent.com/images/AwTsKmlC3D7Q0nXT1xH0qt3jHkI.png?width=505&height=278"
   },
-  "scripts": {
-    "build": "npm install -g @privy-io/agent-wallet-cli",
-    "start": "privy-agent-wallet login --non-interactive"
-  },
-  "routes": [
-    {
-      "port": 3000,
-      "path": "/dashboard",
-      "protected": false
-    }
-  ],
   "skills": [
     {
       "cid": "bafybeih5pzykgnuvhkif6r2jhpvdqqh2bizt2g3b65f6iihugrb4nnyuce",
@@ -80,6 +69,17 @@
     },
     {
       "name": "PRIVATE_KEY"
+    }
+  ],
+  "scripts": {
+    "build": "npm install -g @privy-io/agent-wallet-cli",
+    "start": "privy-agent-wallet login --non-interactive"
+  },
+  "routes": [
+    {
+      "port": 3000,
+      "path": "/dashboard",
+      "protected": false
     }
   ]
 }
