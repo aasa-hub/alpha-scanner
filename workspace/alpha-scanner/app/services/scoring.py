@@ -40,11 +40,28 @@ def load_latest_candidates() -> List[TokenCandidate]:
             COALESCE(twitter_url, '') AS twitter_url,
             COALESCE(telegram_url, '') AS telegram_url,
             COALESCE(website_url, '') AS website_url,
-            COALESCE(github_url, '') AS github_url
+            COALESCE(github_url, '') AS github_url,
+            COALESCE(hs.holder_count, 0) AS holder_count,
+            COALESCE(hs.top_10_pct, 0) AS top_10_pct,
+            COALESCE(hs.creator_pct, 0) AS creator_pct
         FROM latest_pairs lp
         JOIN tokens t
           ON t.chain = lp.chain
          AND t.token_address = lp.token_address
+        LEFT JOIN (
+            SELECT h1.*
+            FROM holder_snapshots h1
+            JOIN (
+                SELECT chain, token_address, MAX(snapshot_at) AS latest_snapshot_at
+                FROM holder_snapshots
+                GROUP BY chain, token_address
+            ) h2
+              ON h1.chain = h2.chain
+             AND h1.token_address = h2.token_address
+             AND h1.snapshot_at = h2.latest_snapshot_at
+        ) hs
+          ON hs.chain = lp.chain
+         AND hs.token_address = lp.token_address
         """
     ).fetchall()
 
@@ -71,9 +88,9 @@ def load_latest_candidates() -> List[TokenCandidate]:
                 mint_authority=False,
                 freeze_authority=False,
                 proxy_contract=False,
-                holder_count=0,
-                top_10_pct=0,
-                creator_pct=0,
+                holder_count=row["holder_count"] or 0,
+                top_10_pct=row["top_10_pct"] or 0,
+                creator_pct=row["creator_pct"] or 0,
                 tracked_wallet_buys_count=0,
                 product_activity_score=6 if row["github_url"] else 0,
                 catalyst_score=4 if row["website_url"] else 0,

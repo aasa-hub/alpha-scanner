@@ -5,6 +5,7 @@ Semi-automated Solana + Base alpha scanner for early meme and utility coin disco
 ## MVP features
 - Real DexScreener pair discovery for Solana and Base
 - SQLite token + pair snapshot persistence
+- Base-first holder enrichment with Solana fallback scaffolding
 - Strategy-specific scoring functions
 - Threshold-based alert generation with alert dedupe
 - Simple test coverage for scoring thresholds
@@ -34,6 +35,7 @@ TELEGRAM_CHAT_ID=5815439260
 - normalize pair data
 - upsert tokens into SQLite
 - insert pair snapshots into SQLite
+- enrich holder snapshots (Base first, Solana fallback)
 - compute and store strategy scores
 - generate deduped threshold-based alerts
 - send alerts to Telegram when configured
