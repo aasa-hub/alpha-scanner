@@ -8,6 +8,7 @@ from app.services.alerting import (
     save_alert,
     should_alert,
 )
+from app.services.telegram import configured_target, is_configured, send_message
 
 
 def run() -> List[Dict[str, object]]:
@@ -25,7 +26,13 @@ def run() -> List[Dict[str, object]]:
         enriched["message_hash"] = hashlib.sha256(
             enriched["summary"].encode("utf-8")
         ).hexdigest()
-        save_alert(enriched)
+
+        sent_to = "local"
+        if is_configured():
+            send_message(enriched["summary"])
+            sent_to = configured_target() or "telegram"
+
+        save_alert(enriched, sent_to=sent_to)
         emitted_alerts.append(enriched)
 
     return emitted_alerts

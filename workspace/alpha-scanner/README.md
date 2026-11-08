@@ -22,6 +22,12 @@ PYTHONPATH=. pytest
 ## Environment
 Copy `.env.example` to `.env` and fill in keys as needed.
 
+For Telegram delivery, set:
+```env
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=5815439260
+```
+
 ## Current ingestion behavior
 `python scripts/run_once.py` will:
 - query DexScreener for Solana and Base pairs
@@ -30,4 +36,5 @@ Copy `.env.example` to `.env` and fill in keys as needed.
 - insert pair snapshots into SQLite
 - compute and store strategy scores
 - generate deduped threshold-based alerts
+- send alerts to Telegram when configured
 - print a short storage summary
